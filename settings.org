@@ -1,4 +1,4 @@
-#+TITLE:  Emacs Configuration File
+#+TITLE:  Emacs Settings
 #+AUTHOR: Brian Roels
 
 * Introduction
@@ -326,7 +326,7 @@
 
 ** Org Mode
 
-   Its repudation preceeds it.
+   Its reputation preceeds it.
 
    #+BEGIN_SRC emacs-lisp :tangle yes
    (use-package org

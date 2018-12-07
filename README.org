@@ -1,0 +1,5 @@
+#+TITLE: My .emacs.d
+#+AUTHOR: Brian Roels
+
+This contains my Emacs configuration files. Everything here belongs in
+=~/.emacs.d/=.
