@@ -14,4 +14,4 @@
   (require 'use-package))
 (require 'bind-key)
 
-(org-babel-load-file (expand-file-name "settings.org"))
+(org-babel-load-file (expand-file-name "settings.org" user-emacs-directory))

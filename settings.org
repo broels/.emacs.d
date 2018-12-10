@@ -2,6 +2,7 @@
 #+AUTHOR: Brian Roels
 
 * Introduction
+
   This is my =.emacs= configuration file. Some of it is my own, most of it is
   not. In particular, I owe a lot of credit to [[https://github.com//howardabrams/dot-files][Howard Abrams]] & [[https://gitlab.com/psachin/emacs.d/blob/master/init.el][@psachin]].
 
@@ -21,8 +22,8 @@
 
     #+BEGIN_SRC shell :tangle no
     brew cask install xquartz
-    brew install emacs --HEAD --use-git-head --with-cocoa --with-gnutls --with-librsvg --with-ns --with-imagemagick
-    brew linkapps emacs
+    brew cask install emacs --HEAD --use-git-head --with-cocoa --with-gnutls --with-librsvg --with-ns --with-imagemagick
+    ln -s /usr/local/Cellar/emacs/*/Emacs.app/ /Applications/
     #+END_SRC
 
 *** Windows
@@ -58,68 +59,111 @@
 
 * General Settings
 
-** System
+*** Modernization
 
-   Extra packages are stored in =~/.emacs.d/opt/=. Currently, I use the following:
+    Up the garbage collection threshold.
 
-   * [[https://github.com/emacsmirror/org/blob/master/contrib/lisp/ox-confluence.el][ox-confluence]] :: Because the confluence WYSIWYG absolutely blows
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (setq gc-cons-threshold 50000000)
+    #+END_SRC
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (add-to-list 'load-path "~/.emacs.d/opt/")
+*** Session
+
+    As rarely as I actually use it, I like the ability to save my desktop session for later.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (desktop-save-mode t)
+    #+END_SRC
+
+*** Backups
+
+    I also *HATE* the automatic backups that Emacs insists on littering my
+    repositories with, so fuck em (to a seperate directory).
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (setq backup-by-copying t)
+    (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+    (setq delete-old-versions t)
+    (setq kept-new-versions 5)
+    (setq kept-old-versions 2)
+    (setq version-control t)
+    #+END_SRC
+
+*** Path configuration
+
+    I also have to configure Emacs' path a little bit so that it can find
+    version-managed executables (like those managed by =perlbrew= or =rvm=).
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (setq exec-path (append exec-path '("/usr/local/bin")))
+    #+END_SRC
+
+*** Audible Bell
+
+    I also definitely do not need to be beeped at when I scroll past the end of
+    buffers.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (setq ring-bell-function 'ignore)
+    #+END_SRC
+
+*** Customization
+
+    Emacs-defined configuration can be seperated from my configuration.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (setq custom-file (expand-file-name "custom.el"))
+    (when (file-exists-p custom-file)
+      (load custom-file))
+    #+END_SRC
+
+* Package Management
+
+*** Manual
+
+    Extra packages are stored in =~/.emacs.d/opt/=. Currently, I use the following:
+
+    * [[https://github.com/emacsmirror/org/blob/master/contrib/lisp/ox-confluence.el][ox-confluence]] :: Because the confluence WYSIWYG absolutely blows
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (add-to-list 'load-path "~/.emacs.d/opt/")
+    #+END_SRC
+
+* Display Settings
+
+ I don't need any of that toolbar crap. Other stuff is cool, though.
+
+ #+BEGIN_SRC emacs-lisp :tangle yes
+ (tool-bar-mode nil)
+ (scroll-bar-mode nil)
+ (menu-bar-mode t)
+ (global-linum-mode t)
+ (column-number-mode t)
+ #+END_SRC
+
+* Key Bindings
+
+** Prevent Accidents
+
+   I accidentally hit this all the time and bork my open panes, so disable it.
+
+   #+BEGIN_SRC emacs-listp :tangle yes
+     (define-key input-decode-map [?\C-\[] (kbd "<C-[>"))
+     (global-set-key (kbd "<C-[>") nil)
    #+END_SRC
 
-   As rarely as I actually use it, I like the ability to save my desktop session for later.
+* Editing
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (desktop-save-mode t)
-   #+END_SRC
+*** Whitespace Cleanup
 
-   I also *HATE* the automatic backups that Emacs insists on littering my
-   repositories with, so fuck em (to a seperate directory).
+    I tend to prefer automatic whitespace cleanup, but recently I've been bitten
+    by it. I'll leave it here for later anyways.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (setq backup-by-copying t)
-   (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-   (setq delete-old-versions t)
-   (setq kept-new-versions 5)
-   (setq kept-old-versions 2)
-   (setq version-control t)
-   #+END_SRC
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (add-hook 'before-save-hook 'whitespace-cleanup)
+    #+END_SRC
 
-   I also have to configure Emacs' path a little bit so that it can find
-   version-managed executables (like those managed by =perlbrew= or =rvm=).
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (setq exec-path (append exec-path '("/usr/local/bin")))
-   #+END_SRC
-
-   I tend to prefer automatic whitespace cleanup, but recently I've been bitten
-   by it. I'll leave it here for later anyways.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (add-hook 'before-save-hook 'whitespace-cleanup)
-   #+END_SRC
-
-   I also definitely do not need to be beeped at when I scroll past the end of
-   buffers.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (setq ring-bell-function 'ignore)
-   #+END_SRC
-
-** Visual
-
-   I don't need any of that toolbar crap. Other stuff is cool, though.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (tool-bar-mode nil)
-   (scroll-bar-mode nil)
-   (menu-bar-mode t)
-   (global-linum-mode t)
-   (column-number-mode t)
-   #+END_SRC
-
-** Editing
+*** Indentation
 
    This tends to change depending on who/what I'm working with/for, but as they stand:
 
@@ -129,57 +173,99 @@
    (setq-default fill-column 80)
    #+END_SRC
 
-** Themes
+* Languages
 
-   What good is one solid theme when I can have another 99 themes I never use?
-   Some themes require installing their package, most do not. I wrote
-   [[https://github.com/broels/emacsthemes-downloader][emacsthemes-downloader]] to crawl [[emacsthemes.com][emacsthemes]] and download them all. I think it
-   requires you to have ssh keys set up with Github, if so do that.
+** C
 
-   #+BEGIN_SRC shell :tangle no
-   git clone https://github.com/broels/emacsthemes-downloader
-   cd emacsthemes-downloader
-   cpan JSON
-   perl ./emacsthemes-downloader.pl
-   #+END_SRC
-
-   This places them in my Emacs directory, all I need to do is load them.
+   C needs its own indentation settings for some reason.
 
    #+BEGIN_SRC emacs-lisp :tangle yes
-   (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+     (defvaralias 'c-basic-offset 'tab-width)
    #+END_SRC
 
-   I also have a function for trying out different themes, since by default
-   Emacs seems to cascade themes when you set a new one. =org-beautify= we'll
-   get to later, but this will mess up when called if it's not installed. Maybe
-   I should fix that.
+** Perl
+
+   I don't know why =cperl-mode= isn't the default.
 
    #+BEGIN_SRC emacs-lisp :tangle yes
-   (defun load-only-theme ()
-   (interactive)
-   (while custom-enabled-themes
-     (disable-theme (car custom-enabled-themes)))
-   (call-interactively 'load-theme)
-   (load-theme 'org-beautify))
+     (defalias 'perl-mode 'cperl-mode)
+     (defvaralias 'cperl-indent-level 'tab-width)
    #+END_SRC
 
-** Keybindings
+** JSON
 
-   Most of my keybindings are default, the few that I add are usually for
-   specific packages and can be found under the respective package
-   configurations.
+   Provides =json-beautify=, amongst other probably useful stuff.
 
-   I accidentally hit this all the time and bork my open panes, so disable it.
-
-   #+BEGIN_SRC emacs-listp :tangle yes
-   (define-key input-decode-map [?\C-\[] (kbd "<C-[>"))
-   (global-set-key (kbd "<C-[>") nil)
+   #+BEGIN_SRC emacs-lisp :tangle yes
+   (use-package json-mode
+     :ensure t)
    #+END_SRC
 
-* Packages
+** Markdown
 
-  Packages are all managed by =use-package= which should be installed by the
-  true =.emacs= root above.
+   For markdown.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+   (use-package markdown-mode
+     :ensure t)
+   #+END_SRC
+
+** Ruby
+
+*** Enhanced Ruby Mode
+
+    The builtin ruby mode sucks, this makes it better.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package enh-ruby-mode
+      :ensure t
+      :config
+        (defalias 'ruby-mode 'enh-ruby-mode)
+        (setq enh-ruby-indent-tabs-mode nil)
+        (setq ruby-indent-level 2)
+        (setq ruby-insert-encoding-magic-comment nil)
+        ;; unfuck enh-ruby-mode custom faces
+        (remove-hook 'enh-ruby-mode-hook 'erm-define-faces))
+    #+END_SRC
+
+*** RSpec Mode
+
+    For running ruby specs in Emacs.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package rspec-mode
+      :ensure t)
+    #+END_SRC
+
+*** RuboCop
+
+    Compliments flycheck nicely.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package rubocop
+      :ensure t)
+    #+END_SRC
+
+*** RVM
+
+    A lot of things break because they can't find RVM-managed ruby installations.
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+    (use-package rvm
+      :ensure t
+      :config (add-hook 'ruby-mode-hook (lambda () (rvm-activate-corresponding-ruby))))
+    #+END_SRC
+
+** HTML
+
+   HTML templates can be funky to parse but this helps.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+   (use-package web-mode
+     :ensure t)
+   #+END_SRC
+
+* Tools
 
 ** Ace Jump
 
@@ -219,22 +305,6 @@
    (use-package diff-hl
      :ensure t
      :config (global-diff-hl-mode t))
-   #+END_SRC
-
-** Enhanced Ruby Mode
-
-   The builtin ruby mode sucks, this makes it better.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package enh-ruby-mode
-     :ensure t
-     :config
-       (defalias 'ruby-mode 'enh-ruby-mode)
-       (setq enh-ruby-indent-tabs-mode nil)
-       (setq ruby-indent-level 2)
-       (setq ruby-insert-encoding-magic-comment nil)
-       ;; unfuck enh-ruby-mode custom faces
-       (remove-hook 'enh-ruby-mode-hook 'erm-define-faces))
    #+END_SRC
 
 ** Elasticsearch Mode
@@ -296,15 +366,6 @@
      :config (indent-guide-global-mode t))
    #+END_SRC
 
-** JSON Mode
-
-   Provides =json-beautify=, amongst other probably useful stuff.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package json-mode
-     :ensure t)
-   #+END_SRC
-
 ** Magit
 
    I don't even know how to use git's CLI anymore, which is probably bad.
@@ -313,15 +374,6 @@
    (use-package magit
      :ensure t
      :config (global-set-key (kbd "C-x g") 'magit-status))
-   #+END_SRC
-
-** Markdown
-
-   For markdown.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package markdown-mode
-     :ensure t)
    #+END_SRC
 
 ** Org Mode
@@ -337,7 +389,7 @@
            ("TODO" . (:foreground "grey" :weight bold))
            ("NEXT" . (:foreground "red"))
            ("ACTIVE" . (:foreground "green"))
-           ("OPEN" . (:foreground "green"))))
+           ("OPEN" . (:foreground "green")))))
    #+END_SRC
 
    It could use a facelift, though.
@@ -361,34 +413,6 @@
      :ensure t)
    #+END_SRC
 
-** RSpec Mode
-
-   For running ruby specs in Emacs.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package rspec-mode
-     :ensure t)
-   #+END_SRC
-
-** RuboCop
-
-   Compliments flycheck nicely.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package rubocop
-     :ensure t)
-   #+END_SRC
-
-** RVM
-
-   A lot of things break because they can't find RVM-managed ruby installations.
-
-   #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package rvm
-     :ensure t
-     :config (add-hook 'ruby-mode-hook (lambda () (rvm-activate-corresponding-ruby)))))
-   #+END_SRC
-
 ** VLF
 
    Necessary for some of the monstrosities I find myself having to inspect.
@@ -398,11 +422,38 @@
      :ensure t)
    #+END_SRC
 
-** Web Mode
+* Themes
 
-   HTML templates can be funky to parse but this helps.
+** Emacsthemes Downloader
+
+   What good is one solid theme when I can have another 99 themes I never use?
+   Some themes require installing their package, most do not. I wrote
+   [[https://github.com/broels/emacsthemes-downloader][emacsthemes-downloader]] to crawl [[emacsthemes.com][emacsthemes]] and download them all. I think it
+   requires you to have ssh keys set up with Github, if so do that.
+
+   #+BEGIN_SRC shell :tangle no
+     git clone https://github.com/broels/emacsthemes-downloader
+     cd emacsthemes-downloader
+     cpan JSON
+     perl ./emacsthemes-downloader.pl
+   #+END_SRC
+
+   This places them in my Emacs directory, all I need to do is load them.
 
    #+BEGIN_SRC emacs-lisp :tangle yes
-   (use-package web-mode
-     :ensure t)
+     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+   #+END_SRC
+
+   I also have a function for trying out different themes, since by default
+   Emacs seems to cascade themes when you set a new one. =org-beautify= we'll
+   get to later, but this will mess up when called if it's not installed. Maybe
+   I should fix that.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+     (defun load-only-theme ()
+       (interactive)
+       (while custom-enabled-themes
+         (disable-theme (car custom-enabled-themes)))
+       (call-interactively 'load-theme)
+       (load-theme 'org-beautify))
    #+END_SRC
