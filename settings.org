@@ -125,13 +125,19 @@
 * Package Management
 ** Manual
 
-   Extra packages are stored in =~/.emacs.d/opt/=. Currently, I use the following:
-
-   * [[https://github.com/emacsmirror/org/blob/master/contrib/lisp/ox-confluence.el][ox-confluence]] :: Because the confluence WYSIWYG absolutely blows
+   Extra packages are stored in =~/.emacs.d/opt/=.
 
    #+BEGIN_SRC emacs-lisp :tangle yes
      (add-to-list 'load-path "~/.emacs.d/opt/")
    #+END_SRC
+
+   Currently, I use the following:
+
+*** [[https://github.com/emacsmirror/org/blob/master/contrib/lisp/ox-confluence.el][ox-confluence]] :: Because the confluence WYSIWYG absolutely blows
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+      (require 'ox-confluence)
+    #+END_SRC
 
 * Display Settings
 
@@ -495,6 +501,15 @@
        :ensure t)
    #+END_SRC
 
+** Projectile
+
+   Easy navigation around repositories.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+     (use-package projectile
+       :ensure t)
+   #+END_SRC
+
 ** VLF
 
    Necessary for some of the monstrosities I find myself having to inspect.
@@ -545,4 +560,12 @@
    #+BEGIN_SRC emacs-lisp :tangle yes
      (use-package color-theme-sanityinc-tomorrow
        :ensure t)
+   #+END_SRC
+
+** Default Theme
+
+   Changes all of the time.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+     (load-theme 'leuven)
    #+END_SRC
