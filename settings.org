@@ -139,6 +139,12 @@
       (require 'ox-confluence)
     #+END_SRC
 
+*** ox-reveal :: For fancy emacs-driven slide shows
+
+    #+BEGIN_SRC emacs-lisp :tangle yes
+      (require 'ox-reveal)
+    #+END_SRC
+
 * Display Settings
 
   I don't need any of that toolbar crap. Other stuff is cool, though.
@@ -150,6 +156,12 @@
     (global-linum-mode t)
     (column-number-mode t)
     (global-hl-line-mode t)
+  #+END_SRC
+
+  I can't figure out how to get 'save options' to in fact, save my options.
+
+  #+BEGIN_SRC emacs-lisp :tangle yes
+    (add-to-list 'default-frame-alist '(font . "Consolas for Powerline-14:style=Regular"))
   #+END_SRC
 
 * Key Bindings
@@ -318,6 +330,21 @@
         (defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
           (rvm-activate-corresponding-ruby)))
     #+END_SRC
+
+** Javascript
+
+   JS2 is apparently better than the builtin.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+     (use-package js2-mode
+       :ensure t
+       :config
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+       (add-hook 'js-mode-hook 'js2-minor-mode)
+       (setq-default js2-basic-offset 2)
+       (setq js-indent-level 2))
+   #+END_SRC
+
 ** HTML
 
    HTML templates can be funky to parse but this helps.
@@ -499,6 +526,15 @@
        :ensure t)
      (use-package ox-slack
        :ensure t)
+     (use-package ox-reveal
+       :disabled
+       :ensure t)
+   #+END_SRC
+
+   Trying out org-jira.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+     (setq jiralib-url "https://salsify.atlassian.net")
    #+END_SRC
 
 ** Projectile
@@ -567,5 +603,16 @@
    Changes all of the time.
 
    #+BEGIN_SRC emacs-lisp :tangle yes
-     (load-theme 'leuven)
+     (load-theme 'parchment)
+   #+END_SRC
+
+* Extensions
+** Edit with Emacs
+
+   Nice firefox extension cause most WYSIWYG editors blow.
+
+   #+BEGIN_SRC emacs-lisp :tangle yes
+     (use-package edit-server
+       :ensure t
+       :config (edit-server-start))
    #+END_SRC
