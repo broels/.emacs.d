@@ -5,614 +5,620 @@
 ** Installing Emacs
 *** Linux
 
-    When in linux I tend to fall back to the respective package manager for
-    installing Emacs, though sometimes I'll try out the latest version available
-    at [[https://www.gnu.org/software/emacs/download.html#gnu-linux][savannah.gnu.org]].
+		When in linux I tend to fall back to the respective package manager for
+		installing Emacs, though sometimes I'll try out the latest version available
+		at [[https://www.gnu.org/software/emacs/download.html#gnu-linux][savannah.gnu.org]].
 
 *** OSX
 
-    I've used [[http://emacsformacosx.com/][Emacs for Mac]] in the past, but over time found it to be
-    poorly optimized for certain use cases as easy as it is to install. Recently
-    I've grown akin to installing via [[http://brew.sh][Homebrew]].
+		I've used [[http://emacsformacosx.com/][Emacs for Mac]] in the past, but over time found it to be
+		poorly optimized for certain use cases as easy as it is to install. Recently
+		I've grown akin to installing via [[http://brew.sh][Homebrew]].
 
-    #+BEGIN_SRC shell :tangle no
-      brew cask install xquartz
-      brew cask install emacs --HEAD --use-git-head --with-cocoa --with-gnutls --with-librsvg --with-ns --with-imagemagick
-      ln -s /usr/local/Cellar/emacs/*/Emacs.app/ /Applications/
-    #+END_SRC
+		#+BEGIN_SRC shell :tangle no
+			brew cask install xquartz
+			brew cask install emacs --HEAD --use-git-head --with-cocoa --with-gnutls --with-librsvg --with-ns --with-imagemagick
+			ln -s /usr/local/Cellar/emacs/*/Emacs.app/ /Applications/
+		#+END_SRC
 
 *** Windows
 
-    Here be dragons.
+		Here be dragons.
 
 ** Loading this File
 
-   Emacs needs an actual initialization file to be able to load these
-   settings. I put this in =~/.emacs.d/init.el=.
+	 Emacs needs an actual initialization file to be able to load these
+	 settings. I put this in =~/.emacs.d/init.el=.
 
-   #+BEGIN_SRC emacs-lisp :tangle no
-     (require 'package)
-     (add-to-list 'package-archives
-                  '("melpa" . "http://melpa.org/packages/")
-                  '("marmalade" . "https://marmalade-repo.org/packages/"))
+	 #+BEGIN_SRC emacs-lisp :tangle no
+		 (require 'package)
+		 (add-to-list 'package-archives
+									'("melpa" . "http://melpa.org/packages/")
+									'("marmalade" . "https://marmalade-repo.org/packages/"))
 
-     (package-initialize)
+		 (package-initialize)
 
-     (unless (package-installed-p 'use-package)
-       (package-refresh-contents)
-       (package-install 'use-package)
-       (package-install 'org))
+		 (unless (package-installed-p 'use-package)
+			 (package-refresh-contents)
+			 (package-install 'use-package)
+			 (package-install 'org))
 
-     (eval-when-compile
-       (require 'use-package))
-     (require 'bind-key)
+		 (eval-when-compile
+			 (require 'use-package))
+		 (require 'bind-key)
 
-     (org-babel-load-file (expand-file-name "settings.org"))
-   #+END_SRC
+		 (org-babel-load-file (expand-file-name "settings.org"))
+	 #+END_SRC
 
-   Then, the rest of this file applies.
+	 Then, the rest of this file applies.
 
 * General Settings
 ** Modernization
 
-   Up the garbage collection threshold.
+	 Up the garbage collection threshold.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setq gc-cons-threshold 50000000)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq gc-cons-threshold 50000000)
+	 #+END_SRC
 
 ** Session
 
-   As rarely as I actually use it, I like the ability to save my desktop session for later.
+	 As rarely as I actually use it, I like the ability to save my desktop session for later.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (desktop-save-mode t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (desktop-save-mode t)
+	 #+END_SRC
 
 ** Backups
 
-   I also *HATE* the automatic backups that Emacs insists on littering my
-   repositories with, so fuck em (to a seperate directory).
+	 I also *HATE* the automatic backups that Emacs insists on littering my
+	 repositories with, so fuck em (to a seperate directory).
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setq backup-by-copying t)
-     (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-     (setq delete-old-versions t)
-     (setq kept-new-versions 5)
-     (setq kept-old-versions 2)
-     (setq version-control t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq backup-by-copying t)
+		 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+		 (setq delete-old-versions t)
+		 (setq kept-new-versions 5)
+		 (setq kept-old-versions 2)
+		 (setq version-control t)
+	 #+END_SRC
 
 ** Path configuration
 
-   I also have to configure Emacs' path a little bit so that it can find
-   version-managed executables (like those managed by =perlbrew= or =rvm=).
+	 Set the default working directory to home.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-     (setq exec-path (append exec-path '("/usr/local/bin")))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq default-directory "~/")
+	 #+END_SRC
+
+	 I also have to configure Emacs' path a little bit so that it can find
+	 version-managed executables (like those managed by =perlbrew= or =rvm=).
+
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+		 (setq exec-path (append exec-path '("/usr/local/bin")))
+	 #+END_SRC
 
 ** Audible Bell
 
-   I also definitely do not need to be beeped at when I scroll past the end of
-   buffers.
+	 I also definitely do not need to be beeped at when I scroll past the end of
+	 buffers.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setq ring-bell-function 'ignore)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq ring-bell-function 'ignore)
+	 #+END_SRC
 
 ** Customization
 
-   Emacs-defined configuration can be seperated from my configuration.
+	 Emacs-defined configuration can be seperated from my configuration.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-     (when (file-exists-p custom-file)
-       (load custom-file))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+		 (when (file-exists-p custom-file)
+			 (load custom-file))
+	 #+END_SRC
 
 ** Scrolling
 
-   Let's try this to see if it helps with the messed up scrolling at all.
+	 Let's try this to see if it helps with the messed up scrolling at all.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setq scroll-conservatively 101)
-     (setq mouse-wheel-scroll-amount '(1))
-     (setq mouse-wheel-progressive-speed nil)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq scroll-conservatively 101)
+		 (setq mouse-wheel-scroll-amount '(1))
+		 (setq mouse-wheel-progressive-speed nil)
+	 #+END_SRC
 
 * Package Management
 ** Manual
 
-   Extra packages are stored in =~/.emacs.d/opt/=.
+	 Extra packages are stored in =~/.emacs.d/opt/=.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (add-to-list 'load-path "~/.emacs.d/opt/")
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (add-to-list 'load-path "~/.emacs.d/opt/")
+	 #+END_SRC
 
-   Currently, I use the following:
+	 Currently, I use the following:
 
 *** [[https://github.com/emacsmirror/org/blob/master/contrib/lisp/ox-confluence.el][ox-confluence]] :: Because the confluence WYSIWYG absolutely blows
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (require 'ox-confluence)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(require 'ox-confluence)
+		#+END_SRC
 
 *** ox-reveal :: For fancy emacs-driven slide shows
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (require 'ox-reveal)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(require 'ox-reveal)
+		#+END_SRC
 
 * Display Settings
 
-  I don't need any of that toolbar crap. Other stuff is cool, though.
+	I don't need any of that toolbar crap. Other stuff is cool, though.
 
-  #+BEGIN_SRC emacs-lisp :tangle yes
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
-    (menu-bar-mode t)
-    (global-linum-mode t)
-    (column-number-mode t)
-    (global-hl-line-mode t)
-  #+END_SRC
+	#+BEGIN_SRC emacs-lisp :tangle yes
+		(tool-bar-mode -1)
+		(scroll-bar-mode -1)
+		(menu-bar-mode t)
+		(global-linum-mode t)
+		(column-number-mode t)
+		(global-hl-line-mode t)
+	#+END_SRC
 
-  I can't figure out how to get 'save options' to in fact, save my options.
+	I can't figure out how to get 'save options' to in fact, save my options.
 
-  #+BEGIN_SRC emacs-lisp :tangle yes
-    (add-to-list 'default-frame-alist '(font . "Consolas for Powerline-14:style=Regular"))
-  #+END_SRC
+	#+BEGIN_SRC emacs-lisp :tangle yes
+		(add-to-list 'default-frame-alist '(font . "Consolas for Powerline-14:style=Regular"))
+	#+END_SRC
 
 * Key Bindings
 
 ** Prevent Accidents
 
-   I accidentally hit this all the time and bork my open panes, so disable it.
+	 I accidentally hit this all the time and bork my open panes, so disable it.
 
-   #+BEGIN_SRC emacs-listp :tangle yes
-   (define-key input-decode-map [?\C-\[] (kbd "<C-[>"))
-   (global-set-key (kbd "<C-[>") nil)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-listp :tangle yes
+	 (define-key input-decode-map [?\C-\[] (kbd "<C-[>"))
+	 (global-set-key (kbd "<C-[>") nil)
+	 #+END_SRC
 
 ** Zooming into regions
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (defun zoom-to-region ()
-       (interactive)
-       (narrow-to-region (region-beginning) (region-end))
-       (text-scale-adjust 3))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (defun zoom-to-region ()
+			 (interactive)
+			 (narrow-to-region (region-beginning) (region-end))
+			 (text-scale-adjust 3))
+	 #+END_SRC
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (defun unzoom-from-region ()
-       (interactive)
-       (text-scale-adjust 0)
-       (widen))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (defun unzoom-from-region ()
+			 (interactive)
+			 (text-scale-adjust 0)
+			 (widen))
+	 #+END_SRC
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (global-set-key (kbd "C-x p") 'zoom-to-region)
-     (global-set-key (kbd "C-x w") 'unzoom-from-region)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (global-set-key (kbd "C-x p") 'zoom-to-region)
+		 (global-set-key (kbd "C-x w") 'unzoom-from-region)
+	 #+END_SRC
 
 * Editing
 
 *** Whitespace Cleanup
 
-    I tend to prefer automatic whitespace cleanup, but recently I've been bitten
-    by it. I'll leave it here for later anyways.
+		I tend to prefer automatic whitespace cleanup, but recently I've been bitten
+		by it. I'll leave it here for later anyways.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (add-hook 'before-save-hook 'whitespace-cleanup)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(add-hook 'before-save-hook 'whitespace-cleanup)
+		#+END_SRC
 
 *** Indentation
 
-    This tends to change depending on who/what I'm working with/for, but as they stand:
+		This tends to change depending on who/what I'm working with/for, but as they stand:
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (setq-default indent-tabs-mode -1)
-      (setq-default tab-width 2)
-      (setq-default fill-column 80)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(setq-default indent-tabs-mode -1)
+			(setq-default tab-width 2)
+			(setq-default fill-column 80)
+		#+END_SRC
 
 * Languages
 ** C
 
-   C needs its own indentation settings for some reason.
+	 C needs its own indentation settings for some reason.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (defvaralias 'c-basic-offset 'tab-width)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (defvaralias 'c-basic-offset 'tab-width)
+	 #+END_SRC
 
 ** Perl
 
-   I don't know why =cperl-mode= isn't the default.
+	 I don't know why =cperl-mode= isn't the default.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (defalias 'perl-mode 'cperl-mode)
-     (defvaralias 'cperl-indent-level 'tab-width)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (defalias 'perl-mode 'cperl-mode)
+		 (defvaralias 'cperl-indent-level 'tab-width)
+	 #+END_SRC
 
 ** JSON
 
-   Provides =json-beautify=, amongst other probably useful stuff.
+	 Provides =json-beautify=, amongst other probably useful stuff.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package json-mode
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package json-mode
+			 :ensure t)
+	 #+END_SRC
 
 ** Markdown
 
-   For markdown.
+	 For markdown.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package markdown-mode
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package markdown-mode
+			 :ensure t)
+	 #+END_SRC
 
 ** Ruby
 *** Company inf-ruby
 
-    =inf-ruby= backend for company auto-completion framework.
+		=inf-ruby= backend for company auto-completion framework.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package company-inf-ruby
-        :ensure t)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package company-inf-ruby
+				:ensure t)
+		#+END_SRC
 
 *** Enhanced Ruby Mode
 
-    The builtin ruby mode sucks, this makes it better.
+		The builtin ruby mode sucks, this makes it better.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package enh-ruby-mode
-        :ensure t
-        :config
-        (defalias 'ruby-mode 'enh-ruby-mode)
-        (setq enh-ruby-indent-tabs-mode -1)
-        (setq ruby-indent-level 2)
-        (setq ruby-insert-encoding-magic-comment -1)
-        ;; unfuck enh-ruby-mode custom faces
-        (remove-hook 'enh-ruby-mode-hook 'erm-define-faces))
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package enh-ruby-mode
+				:ensure t
+				:config
+				(defalias 'ruby-mode 'enh-ruby-mode)
+				(setq enh-ruby-indent-tabs-mode -1)
+				(setq ruby-indent-level 2)
+				(setq ruby-insert-encoding-magic-comment -1)
+				;; unfuck enh-ruby-mode custom faces
+				(remove-hook 'enh-ruby-mode-hook 'erm-define-faces))
+		#+END_SRC
 
 *** RSpec Mode
 
-    For running ruby specs in Emacs.
+		For running ruby specs in Emacs.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package rspec-mode
-        :ensure t)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package rspec-mode
+				:ensure t)
+		#+END_SRC
 
 *** RuboCop
 
-    Compliments flycheck nicely.
+		Compliments flycheck nicely.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package rubocop
-        :ensure t)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package rubocop
+				:ensure t)
+		#+END_SRC
 
 *** RVM
 
-    A lot of things break because they can't find RVM-managed ruby installations.
+		A lot of things break because they can't find RVM-managed ruby installations.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package rvm
-        :ensure t)
-      ;; :config (add-hook 'ruby-mode-hook (lambda () (rvm-activate-corresponding-ruby))))
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package rvm
+				:ensure t)
+			;; :config (add-hook 'ruby-mode-hook (lambda () (rvm-activate-corresponding-ruby))))
+		#+END_SRC
 
 *** Inf-Ruby
 
-    Provides a Ruby REPL
+		Provides a Ruby REPL
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package inf-ruby
-        :ensure t)
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package inf-ruby
+				:ensure t)
+		#+END_SRC
 
 *** Robe
 
-    Rails-scoped autocompletion, REPL; the works.
+		Rails-scoped autocompletion, REPL; the works.
 
-    #+BEGIN_SRC emacs-lisp :tangle yes
-      (use-package robe
-        :ensure t
-        :config
-        (add-hook 'ruby-mode-hook 'robe-mode)
-        (eval-after-load 'company
-          '(push 'company-robe company-backends))
-        (defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
-          (rvm-activate-corresponding-ruby)))
-    #+END_SRC
+		#+BEGIN_SRC emacs-lisp :tangle yes
+			(use-package robe
+				:ensure t
+				:config
+				(add-hook 'ruby-mode-hook 'robe-mode)
+				(eval-after-load 'company
+					'(push 'company-robe company-backends))
+				(defadvice inf-ruby-console-auto (before activate-rvm-for-robe activate)
+					(rvm-activate-corresponding-ruby)))
+		#+END_SRC
 
 ** Javascript
 
-   JS2 is apparently better than the builtin.
+	 JS2 is apparently better than the builtin.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package js2-mode
-       :ensure t
-       :config
-       (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-       (add-hook 'js-mode-hook 'js2-minor-mode)
-       (setq-default js2-basic-offset 2)
-       (setq js-indent-level 2))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package js2-mode
+			 :ensure t
+			 :config
+			 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+			 (add-hook 'js-mode-hook 'js2-minor-mode)
+			 (setq-default js2-basic-offset 2)
+			 (setq js-indent-level 2))
+	 #+END_SRC
 
 ** HTML
 
-   HTML templates can be funky to parse but this helps.
+	 HTML templates can be funky to parse but this helps.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package web-mode
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package web-mode
+			 :ensure t)
+	 #+END_SRC
 
 * Tools
 ** Ace Jump
 
-   Nice for using the mouse less.
+	 Nice for using the mouse less.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package ace-jump-mode
-       :ensure t
-       :config (global-set-key (kbd "C-c SPC") 'ace-jump-mode))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package ace-jump-mode
+			 :ensure t
+			 :config (global-set-key (kbd "C-c SPC") 'ace-jump-mode))
+	 #+END_SRC
 
 ** Ace Window
 
-   Also nice for using the mouse less, or having to spam =C-x o= all day long.
+	 Also nice for using the mouse less, or having to spam =C-x o= all day long.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package ace-window
-       :ensure t
-       :config (global-set-key (kbd "C-c C-SPC") 'ace-window))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package ace-window
+			 :ensure t
+			 :config (global-set-key (kbd "C-c C-SPC") 'ace-window))
+	 #+END_SRC
 
 ** Beacon
 
-   Emits a little flash where the cursor is when swapping around panes.
+	 Emits a little flash where the cursor is when swapping around panes.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package beacon
-       :ensure t
-       :config (beacon-mode t))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package beacon
+			 :ensure t
+			 :config (beacon-mode t))
+	 #+END_SRC
 
 ** Company
 
-   Company (complete-aything) is an autocompletion framework with support for
-   several backends.
+	 Company (complete-aything) is an autocompletion framework with support for
+	 several backends.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package company
-       :ensure t
-       :config (add-hook 'after-init-hook 'global-company-mode))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package company
+			 :ensure t
+			 :config (add-hook 'after-init-hook 'global-company-mode))
+	 #+END_SRC
 
 ** Diff Highlight
 
-   Indicates VC diffs in the fringe.
+	 Indicates VC diffs in the fringe.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package diff-hl
-       :ensure t
-       :config (global-diff-hl-mode t))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package diff-hl
+			 :ensure t
+			 :config (global-diff-hl-mode t))
+	 #+END_SRC
 
 ** Docker
 
-   Provides a nice interface for managing docker instances.
+	 Provides a nice interface for managing docker instances.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package docker
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package docker
+			 :ensure t)
+	 #+END_SRC
 
 ** Elasticsearch Mode
 
-   Emacs-ified Kibana.
+	 Emacs-ified Kibana.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package es-mode
-       :ensure t
-       :config
-       (add-to-list 'auto-mode-alist '("\\.es$" . es-mode))
-       (add-hook 'es-result-mode-hook 'hs-minor-mode)
-       (org-babel-do-load-languages
-        'org-babel-load-languages
-        '((elasticsearch . t))))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package es-mode
+			 :ensure t
+			 :config
+			 (add-to-list 'auto-mode-alist '("\\.es$" . es-mode))
+			 (add-hook 'es-result-mode-hook 'hs-minor-mode)
+			 (org-babel-do-load-languages
+				'org-babel-load-languages
+				'((elasticsearch . t))))
+	 #+END_SRC
 
 ** Eyebrowse
 
-   Provides tmux-like windows.
+	 Provides tmux-like windows.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package eyebrowse
-       :ensure t
-       :config (eyebrowse-mode t))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package eyebrowse
+			 :ensure t
+			 :config (eyebrowse-mode t))
+	 #+END_SRC
 
 ** Flycheck
 
-   Automatic syntax checking and error reporting.
+	 Automatic syntax checking and error reporting.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package flycheck
-       :ensure t
-       :config (global-flycheck-mode t))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package flycheck
+			 :ensure t
+			 :config (global-flycheck-mode t))
+	 #+END_SRC
 
 ** Helm
 
-   My =M-x= replacement, as begrudgingly slow as it can be.
+	 My =M-x= replacement, as begrudgingly slow as it can be.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package helm
-       :ensure t
-       :config (global-set-key (kbd "M-x") 'helm-M-x))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package helm
+			 :ensure t
+			 :config (global-set-key (kbd "M-x") 'helm-M-x))
+	 #+END_SRC
 
 ** Helm Projectile
 
-   Fuzzy search for files across VC repositories.
+	 Fuzzy search for files across VC repositories.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package helm-projectile
-       :ensure t
-       :config (global-set-key (kbd "C-x C-d") 'helm-projectile))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package helm-projectile
+			 :ensure t
+			 :config (global-set-key (kbd "C-x C-d") 'helm-projectile))
+	 #+END_SRC
 
 ** Indent Guide
 
-   Displays a nice indentation guide when working in nested blocks of code.
+	 Displays a nice indentation guide when working in nested blocks of code.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package indent-guide
-       :ensure t
-       :config (indent-guide-global-mode t))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package indent-guide
+			 :ensure t
+			 :config (indent-guide-global-mode t))
+	 #+END_SRC
 
 ** Magit
 
-   I don't even know how to use git's CLI anymore, which is probably bad.
+	 I don't even know how to use git's CLI anymore, which is probably bad.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package magit
-       :ensure t
-       :config (global-set-key (kbd "C-x g") 'magit-status))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package magit
+			 :ensure t
+			 :config (global-set-key (kbd "C-x g") 'magit-status))
+	 #+END_SRC
 
 ** Org Mode
 
-   Its reputation preceeds it.
+	 Its reputation preceeds it.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package org
-       :ensure t
-       :config
-       (setq org-todo-keyword-faces
-             '(("WAITING" . (:foreground "grey" :weight light))
-               ("TODO" . (:foreground "grey" :weight bold))
-               ("NEXT" . (:foreground "red"))
-               ("ACTIVE" . (:foreground "green"))
-               ("OPEN" . (:foreground "green")))))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package org
+			 :ensure t
+			 :config
+			 (setq org-todo-keyword-faces
+						 '(("WAITING" . (:foreground "grey" :weight light))
+							 ("TODO" . (:foreground "grey" :weight bold))
+							 ("NEXT" . (:foreground "red"))
+							 ("ACTIVE" . (:foreground "green"))
+							 ("OPEN" . (:foreground "green"))))
+			 (add-to-list 'org-modules 'org-tempo))
+	 #+END_SRC
 
-   It could use a facelift, though.
+	 It could use a facelift, though.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package org-beautify-theme
-       :disabled
-       :ensure t)
-     (use-package org-bullets
-       :ensure t
-       :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package org-beautify-theme
+			 :disabled
+			 :ensure t)
+		 (use-package org-bullets
+			 :ensure t
+			 :config (add-hook 'org-mode-hook (lambda () (org-bullets-mode t))))
+	 #+END_SRC
 
-   There are also some nice org exporters out there.
+	 There are also some nice org exporters out there.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package ox-gfm
-       :ensure t)
-     (use-package ox-jira
-       :ensure t)
-     (use-package ox-slack
-       :ensure t)
-     (use-package ox-reveal
-       :disabled
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package ox-gfm
+			 :ensure t)
+		 (use-package ox-jira
+			 :ensure t)
+		 (use-package ox-slack
+			 :ensure t)
+		 (use-package ox-reveal
+			 :disabled
+			 :ensure t)
+	 #+END_SRC
 
-   Trying out org-jira.
+	 Trying out org-jira.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (setq jiralib-url "https://salsify.atlassian.net")
-   #+END_SRC
-
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (setq jiralib-url "https://salsify.atlassian.net")
+	 #+END_SRC
 ** Projectile
 
-   Easy navigation around repositories.
+	 Easy navigation around repositories.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package projectile
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package projectile
+			 :ensure t)
+	 #+END_SRC
 
 ** VLF
 
-   Necessary for some of the monstrosities I find myself having to inspect.
+	 Necessary for some of the monstrosities I find myself having to inspect.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package vlf
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package vlf
+			 :ensure t)
+	 #+END_SRC
 
 * Themes
 ** Emacsthemes Downloader
 
-   What good is one solid theme when I can have another 99 themes I never use?
-   Some themes require installing their package, most do not. I wrote
-   [[https://github.com/broels/emacsthemes-downloader][emacsthemes-downloader]] to crawl [[emacsthemes.com][emacsthemes]] and download them all. I think it
-   requires you to have ssh keys set up with Github, if so do that.
+	 What good is one solid theme when I can have another 99 themes I never use?
+	 Some themes require installing their package, most do not. I wrote
+	 [[https://github.com/broels/emacsthemes-downloader][emacsthemes-downloader]] to crawl [[emacsthemes.com][emacsthemes]] and download them all. I think it
+	 requires you to have ssh keys set up with Github, if so do that.
 
-   #+BEGIN_SRC shell :tangle no
-     git clone https://github.com/broels/emacsthemes-downloader
-     cd emacsthemes-downloader
-     cpan JSON
-     perl ./emacsthemes-downloader.pl
-   #+END_SRC
+	 #+BEGIN_SRC shell :tangle no
+		 git clone https://github.com/broels/emacsthemes-downloader
+		 cd emacsthemes-downloader
+		 cpan JSON
+		 perl ./emacsthemes-downloader.pl
+	 #+END_SRC
 
-   This places them in my Emacs directory, all I need to do is load them.
+	 This places them in my Emacs directory, all I need to do is load them.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+	 #+END_SRC
 
-   I also have a function for trying out different themes, since by default
-   Emacs seems to cascade themes when you set a new one. =org-beautify= we'll
-   get to later, but this will mess up when called if it's not installed. Maybe
-   I should fix that.
+	 I also have a function for trying out different themes, since by default
+	 Emacs seems to cascade themes when you set a new one. =org-beautify= we'll
+	 get to later, but this will mess up when called if it's not installed. Maybe
+	 I should fix that.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (defun load-only-theme ()
-       (interactive)
-       (while custom-enabled-themes
-         (disable-theme (car custom-enabled-themes)))
-       (call-interactively 'load-theme))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (defun load-only-theme ()
+			 (interactive)
+			 (while custom-enabled-themes
+				 (disable-theme (car custom-enabled-themes)))
+			 (call-interactively 'load-theme))
+	 #+END_SRC
 
 ** Sanityinc Tomorrow
 
-   Looks nice.
+	 Looks nice.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package color-theme-sanityinc-tomorrow
-       :ensure t)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package color-theme-sanityinc-tomorrow
+			 :ensure t)
+	 #+END_SRC
 
 ** Default Theme
 
-   Changes all of the time.
+	 Changes all of the time.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (load-theme 'parchment)
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (load-theme 'parchment)
+	 #+END_SRC
 
 * Extensions
 ** Edit with Emacs
 
-   Nice firefox extension cause most WYSIWYG editors blow.
+	 Nice firefox extension cause most WYSIWYG editors blow.
 
-   #+BEGIN_SRC emacs-lisp :tangle yes
-     (use-package edit-server
-       :ensure t
-       :config (edit-server-start))
-   #+END_SRC
+	 #+BEGIN_SRC emacs-lisp :tangle yes
+		 (use-package edit-server
+			 :ensure t
+			 :config (edit-server-start))
+	 #+END_SRC
